@@ -1,0 +1,24 @@
+{
+  "zendesk": {
+    "email": "your_zendesk_email@example.com",
+    "api_token": "your_zendesk_api_token",
+    "base_url": "https://coinex.zendesk.com"
+  },
+  "smtp": {
+    "host": "smtp.qq.com",
+    "port": 465,
+    "use_ssl": true,
+    "username": "sender@example.com",
+    "password": "your_smtp_password_or_auth_code",
+    "from_name": "话术备份机器人"
+  },
+  "recipients": [
+    "recipient1@example.com",
+    "recipient2@example.com"
+  ],
+  "schedule": {
+    "day_of_month": 1,
+    "hour": 9,
+    "minute": 0
+  }
+}
