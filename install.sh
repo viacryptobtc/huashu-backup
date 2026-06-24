@@ -8,6 +8,12 @@
 # ============================================================================
 set -euo pipefail
 
+# 当通过 `curl | bash` 管道执行时，stdin 被管道占用，
+# 后续交互式 read 会失败。这里把 stdin 重定向到终端 tty。
+if [ ! -t 0 ]; then
+    exec 0</dev/tty 2>/dev/null || true
+fi
+
 # ---------- 颜色 ----------
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 info()  { printf "${BLUE}[信息]${NC} %s\n" "$*"; }
@@ -53,12 +59,35 @@ cd "$INSTALL_DIR"
 # ---------- 3. 虚拟环境 + 依赖 ----------
 title "第 3 步：创建虚拟环境并安装依赖"
 VENV_DIR="$INSTALL_DIR/.venv"
-python3 -m venv "$VENV_DIR"
-PIP="$VENV_DIR/bin/pip"
 PY="$VENV_DIR/bin/python"
+
+# 创建虚拟环境（--clear 保证幂等，重装时不残留旧文件）
+info "创建虚拟环境 ..."
+if ! python3 -m venv --clear "$VENV_DIR"; then
+    die "创建虚拟环境失败。请检查 python3 是否完整（可能缺少 ensurepip）。"
+fi
+
+# Python 3.12+ 的 venv 可能不带 pip，需要引导
+if [ ! -x "$VENV_DIR/bin/pip" ]; then
+    info "venv 缺少 pip，正在引导 ..."
+    "$PY" -m ensurepip --upgrade || die "ensurepip 失败，请手动执行: python3 -m pip install --user virtualenv"
+fi
+
+# 关闭 set -e，因为 pip 升级自身时退出码可能非零但实际成功
+set +e
+info "升级 pip ..."
+"$PY" -m pip install --upgrade pip >/dev/null 2>&1
 info "安装 openpyxl / requests ..."
-"$PIP" install --quiet --upgrade pip
-"$PIP" install --quiet openpyxl requests
+"$PY" -m pip install openpyxl requests
+INSTALL_RC=$?
+set -e
+
+if [ "$INSTALL_RC" -ne 0 ]; then
+    die "依赖安装失败（退出码 $INSTALL_RC）。可手动重试: $PY -m pip install openpyxl requests"
+fi
+
+# 确认依赖可用
+"$PY" -c "import openpyxl, requests" 2>/dev/null || die "依赖导入失败，请检查虚拟环境: $VENV_DIR"
 ok "依赖安装完成（隔离在 $VENV_DIR，不污染系统）"
 
 # ---------- 4. 交互式生成配置 ----------
