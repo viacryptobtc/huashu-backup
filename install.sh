@@ -16,7 +16,7 @@ warn()  { printf "${YELLOW}[警告]${NC} %s\n" "$*"; }
 die()   { printf "${RED}[错误]${NC} %s\n" "$*"; exit 1; }
 
 # GitHub 仓库地址（push 后改成你的真实地址，或通过环境变量覆盖）
-REPO_URL="${HUASHU_REPO_URL:-https://github.com/viacryptobtc/话术备份自动推送.git}"
+REPO_URL="${HUASHU_REPO_URL:-https://github.com/viacryptobtc/huashu-backup.git}"
 INSTALL_DIR="${HUASHU_INSTALL_DIR:-$HOME/huashu-backup}"
 BRANCH="${HUASHU_BRANCH:-main}"
 

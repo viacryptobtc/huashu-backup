@@ -22,16 +22,16 @@
 在你的服务器上执行（需联网、有 `python3` 和 `git`）：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/viacryptobtc/话术备份自动推送/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/viacryptobtc/huashu-backup/main/install.sh | bash
 ```
 
-> 仓库地址（如需修改仓库名，把 URL 里 `话术备份自动推送` 一并替换）。
+> 仓库地址 `viacryptobtc/huashu-backup`（如需修改仓库名，把 URL 里 `huashu-backup` 一并替换）。
 
 部署脚本会引导你完成：Zendesk 认证 → 发件 SMTP → 收件人 → 发送时间 → 注册 cron，全程交互式填表，回车保留默认值。
 
 也可以先 clone 再本地部署：
 ```bash
-git clone https://github.com/viacryptobtc/话术备份自动推送.git
+git clone https://github.com/viacryptobtc/huashu-backup.git
 cd 话术备份自动推送
 ./install.sh
 ```
