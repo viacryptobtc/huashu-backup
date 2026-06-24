@@ -8,10 +8,14 @@
 # ============================================================================
 set -euo pipefail
 
-# 当通过 `curl | bash` 管道执行时，stdin 被管道占用，
-# 后续交互式 read 会失败。这里把 stdin 重定向到终端 tty。
-if [ ! -t 0 ]; then
-    exec 0</dev/tty 2>/dev/null || true
+# 检测管道模式：curl|bash 时 stdin 是管道而非 tty，
+# 交互式 read 会失效。自动把脚本落地到临时文件并以 tty 重新执行。
+if [ ! -t 0 ] && [ -z "${HUASHU_RERUN:-}" ]; then
+    TMP_SELF="$(mktemp /tmp/huashu-install.XXXXXX.sh)"
+    trap 'rm -f "$TMP_SELF"' EXIT
+    # 通过 BASH_SOURCE 拿到自身路径；管道模式下从 stdin 复制
+    cat > "$TMP_SELF"
+    HUASHU_RERUN=1 exec bash "$TMP_SELF" </dev/tty
 fi
 
 # ---------- 颜色 ----------
